@@ -2,6 +2,8 @@
 
 NOTE: This application is under development.
 
+## Machine setup
+
 Create an Ubunutu Google Compute Engine instance and acquire the Gerrit OAuth scope at instance creation time.
 
 ```
@@ -34,7 +36,11 @@ git clone https://gerrit.googlesource.com/gcompute-tools
 sudo service jenkins restart
 ```
 
-Retrieve the IP address of the instance, then access Jenkins from your local machine.
+You may verify your Gerrit access with: `git ls-remote https://HOST.googlesource.com/project`
+
+## Interactive Jenkins
+
+Retrieve the IP address of the instance, then access Jenkins from your local machine at http://localhost:8080.
 
 ```
 gcloud compute instances describe webreview-buildbot-1 | grep natIP:
