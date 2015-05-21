@@ -38,11 +38,31 @@ sudo service jenkins restart
 
 You may verify your Gerrit access with: `git ls-remote https://HOST.googlesource.com/project`
 
-## Interactive Jenkins
+## Jenkins setup
 
-Retrieve the IP address of the instance, then access Jenkins from your local machine at http://localhost:8080.
+Port forward to your local machine, and access Jenkins at http://localhost:8080.
 
 ```
-gcloud compute instances describe webreview-buildbot-1 | grep natIP:
 gcloud compute ssh webreview-buildbot-1 --ssh-flag="-L 8080:localhost:8080"
+```
+
+Add a parameterized build with the following recipe.
+
+```
+#!/bin/bash
+
+git clone https://gerrit.googlesource.com/gcompute-tools
+./gcompute-tools/git-cookie-authdaemon
+git clone https://$WEBREVIEW_GIT_HOST/$WEBREVIEW_PROJECT $WEBREVIEW_PROJECT
+cd $WEBREVIEW_PROJECT
+if [ -a "package.json" ]; then
+  npm install
+fi
+if [ -a "bower.json" ]; then
+  bower install
+fi
+if [ -a "gulpfile.js" ]; then
+  gulp build
+fi
+/usr/bin/grow deploy -f review
 ```
