@@ -8,7 +8,7 @@ Create an Ubunutu Google Compute Engine instance and acquire the Gerrit OAuth sc
 
 ```
 gcloud compute instances create \
-webreview-builder-1 \
+webreview-buildbot-1 \
 --image ubuntu-14-04 \
 --machine-type n1-standard-1 \
 --scopes https://www.googleapis.com/auth/gerritcodereview \
@@ -43,26 +43,11 @@ You may verify your Gerrit access with: `git ls-remote https://HOST.googlesource
 Port forward to your local machine, and access Jenkins at http://localhost:8080.
 
 ```
-gcloud compute ssh webreview-buildbot-1 --ssh-flag="-L 8080:localhost:8080"
+gcloud compute ssh webreview-buildbot-1 \
+  --zone us-central1-a \
+  --ssh-flag="-L 8080:localhost:8080"
 ```
 
-Add a parameterized build with the following recipe.
+1. Copy `jobs/webreview-buildbot-refresh-gerrit-cookies.xml` to `/var/lib/jenkins/jobs/webreview-buildbot-refresh-gerrit-cookies/config.xml'.
 
-```
-#!/bin/bash
 
-git clone https://gerrit.googlesource.com/gcompute-tools
-./gcompute-tools/git-cookie-authdaemon
-git clone https://$WEBREVIEW_GIT_HOST/$WEBREVIEW_PROJECT $WEBREVIEW_PROJECT
-cd $WEBREVIEW_PROJECT
-if [ -a "package.json" ]; then
-  npm install
-fi
-if [ -a "bower.json" ]; then
-  bower install
-fi
-if [ -a "gulpfile.js" ]; then
-  gulp build
-fi
-/usr/bin/grow deploy -f review
-```
