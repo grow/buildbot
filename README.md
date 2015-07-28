@@ -11,7 +11,7 @@ gcloud compute instances create \
 webreview-buildbot-1 \
 --image ubuntu-14-04 \
 --machine-type n1-standard-1 \
---scopes https://www.googleapis.com/auth/gerritcodereview \
+--scopes https://www.googleapis.com/auth/gerritcodereview,https://www.googleapis.com/auth/devstorage.read_only, https://www.googleapis.com/auth/computeaccounts.readonly, https://www.googleapis.com/auth/logging.write \
 --no-boot-disk-auto-delete \
 --zone us-central1-a
 ```
