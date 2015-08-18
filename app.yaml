@@ -3,6 +3,13 @@ runtime: python27
 api_version: 1
 threadsafe: true
 
+vm: true
+resources:
+  cpu: .5
+  memory_gb: 1.3
+manual_scaling:
+  instances: 1
+
 handlers:
 - url: /.*
   script: main.app

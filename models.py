@@ -1,7 +1,7 @@
 from google.appengine.ext import ndb
 
-
-class GitRepo(ndb.Model):
-    """Models a git repository."""
+class Repo(ndb.Model):
     git_url = ndb.StringProperty()
-    created = ndb.DateTimeProperty(auto_now_add=True)
+    created_at = ndb.DateTimeProperty(auto_now_add=True)
+    refs_to_shas = ndb.JsonProperty(default={})
+
