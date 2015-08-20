@@ -2,6 +2,7 @@ import json
 import models
 import subprocess
 from google.appengine.api import taskqueue
+from google.appengine.ext import ndb
 
 
 class RepoService(object):
@@ -13,6 +14,17 @@ class RepoService(object):
     @staticmethod
     def list_repos():
         return list(models.Repo.query())
+
+    @staticmethod
+    def get_repos(ids):
+        repos = ndb.get_multi([ndb.Key(models.Repo, int(k)) for k in ids])
+        repos = [repo for repo in repos if repo is not None]
+        return repos
+
+    @staticmethod
+    def add_repo(git_url):
+        repo = models.Repo(git_url=git_url)
+        repo.put()
 
     @staticmethod
     def sync_repo(repo):
