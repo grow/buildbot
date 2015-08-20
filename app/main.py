@@ -26,14 +26,21 @@ class ApiSyncHandler(webapp2.RequestHandler):
             result = services.RepoService.sync_repo(repo=repo)
 
             if not result['success']:
-                self.response.write('FAILED.\n')
-            for ref, data in repo.ref_map.iteritems():
-                self.response.write('{}  {}\n'.format(data['sha'], ref))
-
+                self.response.write('SYNC FAILED.\n')
+            else:
+                diff_ref_maps = result['diff_ref_maps']
+                if diff_ref_maps:
+                    self.response.write('Git refs changed:\n')
+                    for ref, data in diff_ref_maps.iteritems():
+                        self.response.write('{}  {}\n'.format(data['sha'], ref))
+                    self.response.write('Triggering builds...\n')
+                    services.RepoService.trigger_builds(repo=repo, diff_ref_maps=diff_ref_maps)
+                    self.response.write('%s builds triggered.\n' % len(diff_ref_maps))
+                else:
+                    self.response.write('No diffs found.\n')
             self.response.write('---\n')
-
 
 app = webapp2.WSGIApplication([
     ('/', MainPageHandler),
-    ('/api/sync', ApiSyncHandler),
+    ('/api/v1/repos/sync', ApiSyncHandler),
 ], debug=True)

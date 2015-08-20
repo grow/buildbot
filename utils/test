@@ -6,14 +6,12 @@ if [ -d env ]; then
     -v \
     --rednose \
     --with-gae \
+    --with-coverage \
+    --cover-erase \
+    --cover-html \
+    --cover-html-dir=htmlcov \
+    --cover-package=app \
     app
-    # --without-sandbox \
-    # --with-coverage \
-    # --cover-erase \
-    # --cover-html \
-    # --cover-html-dir=htmlcov \
-    # --cover-package=app \
-    # app
   deactivate
 else
   echo 'Run ./scripts/setup first.'

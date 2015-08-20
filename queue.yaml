@@ -1,0 +1,5 @@
+queue:
+- name: builds
+  mode: pull
+  # acl:
+  # - user_email: bar@foo.com      # can list, get, lease, delete, and update tasks
