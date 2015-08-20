@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <title>Grow Buildbot</title>
+  <style>
+    body {
+      font-family: monospace;
+      font-size: 14px;
+    }
+  </style>
+  <h2>Jobs ({{ num_jobs }})</h2>
+  {% for job in jobs %}
+    <ul>
+      <li>{{ job.id }}: {{ job.git_url }}</li>
+      <ul>
+        {% for ref in job.ref_map %}
+          <li>[<a href="/api/jobs/{{ job.id }}/run">build now</a>] {{ ref }} ({{ job.ref_map[ref]['sha'][0:7] }})</li>
+        {% endfor %}
+      </ul>
+    </ul>
+  {% endfor %}
+</html>
