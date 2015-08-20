@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
 import os
+import logging
 from apiclient.discovery import build
 from apiclient import errors
 
 PROJECT_NAME = os.getenv('PROJECT_NAME')
-TASK_QUEUE_NAME = os.getenv('QUEUE_NAME')
-TASK_LEASE_SECONDS = os.getenv('TASK_LEASE_SECONDS', 300)
-TASK_BATCH_SIZE = os.getenv('TASK_BATCH_SIZE', 10)
+TASKQUEUE_NAME = os.getenv('TASKQUEUE_NAME', 'builds')
+TASKQUEUE_LEASE_SECONDS = os.getenv('TASKQUEUE_LEASE_SECONDS', 300)
+TASKQUEUE_BATCH_SIZE = os.getenv('TASKQUEUE_BATCH_SIZE', 10)
 assert PROJECT_NAME
-assert TASK_QUEUE_NAME
+assert TASKQUEUE_NAME
 
 def main():
   task_api = build('taskqueue', 'v1beta2')
@@ -17,9 +18,9 @@ def main():
   try:
     lease_request = task_api.tasks().lease(
         project=PROJECT_NAME,
-        taskqueue=TASK_QUEUE_NAME,
-        leaseSecs=TASK_LEASE_SECONDS,
-        numTasks=TASK_BATCH_SIZE,
+        taskqueue=TASKQUEUE_NAME,
+        leaseSecs=TASKQUEUE_LEASE_SECONDS,
+        numTasks=TASKQUEUE_BATCH_SIZE,
         # body={},
     )
     result = lease_request.execute()
@@ -27,7 +28,7 @@ def main():
     print repr(result)
     return result
   except errors.HttpError, e:
-    logger.error('Error during lease request: %s' % str(e))
+    logging.error('Error during lease request: %s' % str(e))
     return None
 
 
