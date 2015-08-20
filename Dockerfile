@@ -24,10 +24,9 @@ ENV TERM=xterm
 # Install system utils and dependencies.
 RUN apt-get install -y --no-install-recommends git curl htop
 RUN apt-get install -y --no-install-recommends \
-  python python-pip build-essential python-all-dev zip \
+  python python-pip python-virtualenv build-essential python-all-dev zip \
   libc6 libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev
 RUN pip install --upgrade pip
-RUN pip install --upgrade google-api-python-client
 
 # Install docker inside docker. This requires that this container is run in --privileged mode.
 RUN curl -sSL https://get.docker.com/ | sh
