@@ -1,1 +1,3 @@
-deploy
+#!/bin/bash
+
+gcloud preview app deploy --version buildbot app.yaml
