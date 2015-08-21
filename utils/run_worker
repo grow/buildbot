@@ -3,5 +3,5 @@
 set -e
 
 source env/bin/activate
-./app/main.py
+./app/worker.py
 deactivate

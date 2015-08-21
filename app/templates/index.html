@@ -7,15 +7,11 @@
       font-size: 14px;
     }
   </style>
-  <h2>Jobs ({{ num_jobs }})</h2>
-  {% for job in jobs %}
-    <ul>
-      <li>{{ job.id }}: {{ job.git_url }}</li>
-      <ul>
-        {% for ref in job.ref_map %}
-          <li>[<a href="/api/jobs/{{ job.id }}/run">build now</a>] {{ ref }} ({{ job.ref_map[ref]['sha'][0:7] }})</li>
-        {% endfor %}
-      </ul>
-    </ul>
-  {% endfor %}
+  <h2><a href="{{ url_for('jobs')}}">Jobs &raquo;</a></h2>
+  <h2>Builds ({{ builds|length }})</h2>
+  <ul>
+    {% for build in builds %}
+      <li><a href="{{ url_for('build', build_id=build.id)}}">build {{ build.id }}</a>: {{ build.status }} {{ build.git_url }} {{ build.ref }} {{ build.commit_sha }}</li>
+    {% endfor %}
+  </ul>
 </html>
