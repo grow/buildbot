@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}Grow Buildbot - Build {{ build.id }}{% endblock %}
+
+{% block body %}
+  <h2><a href="{{ url_for('index')}}">Home &raquo;</a></h2>
+  <h2>Build {{ build.id }} (<strong class="status-{{ build.status }}">{{ build.status }}</strong>)</h2>
+  <pre class="codeblock">{{ build.output }}</pre>
+{% endblock %}

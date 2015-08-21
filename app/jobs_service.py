@@ -183,10 +183,11 @@ def run_build(build_id):
     return success
 
 
-def list_builds():
+def list_builds(limit=None):
+    limit = limit or -1
     builds = []
-    build_ids = redis_client.lrange('builds:runnable', 0, -1)
-    build_ids += redis_client.lrange('builds:recent', 0, -1)
+    build_ids = redis_client.lrange('builds:runnable', 0, limit)
+    build_ids += redis_client.lrange('builds:recent', 0, limit)
     for build_id in build_ids:
         try:
             builds.append(get_build(build_id))
@@ -208,4 +209,5 @@ def get_build(build_id):
     build.git_url = redis_client.hget(build_data_key, 'git_url')
     build.ref = redis_client.hget(build_data_key, 'ref')
     build.commit_sha = redis_client.hget(build_data_key, 'commit_sha')
+    build.output = (redis_client.hget(build_data_key, 'output') or '').decode('utf-8')
     return build

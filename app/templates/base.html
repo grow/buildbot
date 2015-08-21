@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <title>{% block title %}{% endblock %}</title>
+  <style>
+    body {
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .status-success {
+      color: green;
+    }
+    .status-running {
+      color: orange;
+    }
+    .status-failed {
+      color: red;
+    }
+    .codeblock {
+      background: black;
+      color: lightgreen;
+      padding: 10px;
+    }
+  </style>
+  {% block body %}{% endblock %}
+</html>

@@ -8,9 +8,16 @@ app = flask.Flask(__name__)
 
 
 @app.route('/')
+def index():
+    jobs = jobs_service.list_jobs()
+    builds = jobs_service.list_builds(limit=20)
+    return flask.render_template('index.html', builds=builds, jobs=jobs)
+
+
+@app.route('/builds')
 def builds():
     builds = jobs_service.list_builds()
-    return flask.render_template('index.html', builds=builds)
+    return flask.render_template('builds.html', builds=builds)
 
 
 @app.route('/jobs')
@@ -22,8 +29,7 @@ def jobs():
 @app.route('/builds/<int:build_id>')
 def build(build_id):
     build = jobs_service.get_build(build_id)
-    return flask.jsonify({'build_id': build.id})
-
+    return flask.render_template('build.html', build=build)
 
 # API.
 
