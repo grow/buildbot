@@ -6,12 +6,27 @@
       font-family: monospace;
       font-size: 14px;
     }
+    .status-success {
+      color: green;
+    }
+    .status-running {
+      color: orange;
+    }
+    .status-failed {
+      color: red;
+    }
   </style>
   <h2><a href="{{ url_for('jobs')}}">Jobs &raquo;</a></h2>
   <h2>Builds ({{ builds|length }})</h2>
   <ul>
     {% for build in builds %}
-      <li><a href="{{ url_for('build', build_id=build.id)}}">build {{ build.id }}</a>: {{ build.status }} {{ build.git_url }} {{ build.ref }} {{ build.commit_sha }}</li>
+      <li>
+        <a href="{{ url_for('build', build_id=build.id)}}">build {{ build.id }}</a>:
+        <strong class="status-{{ build.status }}">{{ build.status }}</strong>
+        {{ build.git_url }}
+        {{ build.ref }}
+        {{ build.commit_sha }}
+      </li>
     {% endfor %}
   </ul>
 </html>
