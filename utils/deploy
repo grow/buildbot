@@ -1,3 +1,0 @@
-#!/bin/bash
-
-gcloud preview app deploy --version buildbot app.yaml queue.yaml
