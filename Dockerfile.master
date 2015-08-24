@@ -1,0 +1,9 @@
+FROM grow/buildbot-baseimage
+MAINTAINER Grow SDK Authors <hello@grow.io>
+
+# Add the webserver to /etc/service so that the process will run and be supervised by runit.
+ADD prod/services/run-app.sh /etc/service/app/run
+RUN chmod +x /etc/service/app/run
+
+# Add the application.
+ADD app/* /home/app/

@@ -1,0 +1,14 @@
+FROM grow/buildbot-baseimage
+MAINTAINER Grow SDK Authors <hello@grow.io>
+
+# Add N workers to /etc/service so each process will run and be supervised by runit.
+ADD prod/services/run-worker.sh /etc/service/worker1/run
+ADD prod/services/run-worker.sh /etc/service/worker2/run
+ADD prod/services/run-worker.sh /etc/service/worker3/run
+ADD prod/services/run-worker.sh /etc/service/worker4/run
+ADD prod/services/run-worker.sh /etc/service/worker5/run
+RUN chmod +x /etc/service/worker1/run
+RUN chmod +x /etc/service/worker2/run
+RUN chmod +x /etc/service/worker3/run
+RUN chmod +x /etc/service/worker4/run
+RUN chmod +x /etc/service/worker5/run

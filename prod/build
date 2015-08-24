@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+if [ -z "$1" ]
+  then
+    echo "Usage:"
+    echo "  ./deploy.sh VERSION"
+    exit -1
+fi
+VERSION=$1
+
+docker build --pull=true -t grow/buildbot:$VERSION .
+
+# docker tag -f $IMAGE:$NOW $IMAGE:latest

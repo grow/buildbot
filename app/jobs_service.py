@@ -165,8 +165,20 @@ def run_build(build_id):
         'bash',
         '-c',
         """
-            git clone %s growdata && grow build growdata
-            """ % build.git_url
+        set -e
+        git clone %s growsite
+        cd growsite/
+        if [ -a "package.json" ]; then
+          npm install
+        fi
+        if [ -a "bower.json" ]; then
+          bower install --allow-root
+        fi
+        if [ -a "gulpfile.js" ]; then
+          gulp build
+        fi
+        grow build .
+        """ % build.git_url
     ]
     output = subprocess.check_output(command, stderr=subprocess.STDOUT)
     redis_client.hset(build_data_key, 'status', 'success')
