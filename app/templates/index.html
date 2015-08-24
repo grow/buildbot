@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Grow Buildbot{% endblock %}
+
+{% block body %}
+  <h2>Recent builds</h2>
+  <ul>
+    {% for build in builds %}
+      <li>
+        <a href="{{ url_for('build', build_id=build.id)}}">build {{ build.id }}</a>:
+        <strong class="status-{{ build.status }}">{{ build.status }}</strong>
+        {{ build.git_url }}
+        {{ build.ref }}
+        {{ build.commit_sha }}
+      </li>
+    {% endfor %}
+    <li><a href="{{ url_for('builds')}}">More &raquo;</a></li>
+  </ul>
+
+  <h2>Jobs ({{ jobs|length }})</h2>
+  {% for job in jobs %}
+    <ul>
+      <li>Job {{ job.id }}: {{ job.git_url }} [<a href="{{ url_for('run_job', job_id=job.id) }}">sync now</a>]</li>
+      <ul>
+        {% for ref in job.ref_map %}
+          <li>[<a href="{{ url_for('run_job', job_id=job.id, ref=ref, commit_sha=job.ref_map[ref]['sha']) }}">build now</a>] {{ ref }} ({{ job.ref_map[ref]['sha'][0:7] }})</li>
+        {% endfor %}
+      </ul>
+    </ul>
+  {% endfor %}
+{% endblock %}
