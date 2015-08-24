@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import redis
 import subprocess
 import time
@@ -170,16 +170,17 @@ def run_build(build_id):
         ]
         output = subprocess.check_output(command, stderr=subprocess.STDOUT)
         redis_client.hset(build_data_key, 'status', 'success')
-
-        # TODO: probably better to store the output outside redis because it is potentially large.
-        redis_client.hset(build_data_key, 'output', output)
     except subprocess.CalledProcessError, e:
         success = False
         redis_client.hset(build_data_key, 'status', 'failed')
         output = 'Build failed: %s' % e.output
-    except:
+    except Exception, e:
         redis_client.hset(build_data_key, 'status', 'failed')
+        output = 'Build failed: %r' % e
         raise
+    finally:
+        # TODO: probably better to store the output outside redis because it is potentially large.
+        redis_client.hset(build_data_key, 'output', output)
     return success
 
 
