@@ -1,12 +1,12 @@
 #!/bin/bash
 
-VMNAME=buildbot-worker
+VMNAME=buildbot-master
 
 echo "Deploying $VMNAME ..."
 gcloud compute instances create \
   $VMNAME \
   --image container-vm \
-  --machine-type n1-standard-1 \
+  --machine-type n1-highcpu-8 \
   --scopes https://www.googleapis.com/auth/cloud-taskqueue,https://www.googleapis.com/auth/gerritcodereview,https://www.googleapis.com/auth/devstorage.read_only,https://www.googleapis.com/auth/computeaccounts.readonly,https://www.googleapis.com/auth/logging.write \
   --zone us-central1-a \
   --boot-disk-type pd-ssd \
