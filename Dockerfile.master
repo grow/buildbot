@@ -6,4 +6,4 @@ ADD prod/services/run-app.sh /etc/service/app/run
 RUN chmod +x /etc/service/app/run
 
 # Add the application.
-ADD app/* /home/app/
+ADD app /home/app/
