@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -x
 set -e
 
 if [ -z "$1" ]
@@ -10,6 +11,9 @@ if [ -z "$1" ]
 fi
 VERSION=$1
 
-docker build --pull=true -t grow/buildbot:$VERSION .
+docker build -f Dockerfile.baseimage -t grow/buildbot-baseimage:latest .
+docker build -f Dockerfile.master -t grow/buildbot-master:$VERSION .
+docker build -f Dockerfile.worker -t grow/buildbot-worker:$VERSION .
 
 # docker tag -f $IMAGE:$NOW $IMAGE:latest
+echo 'Built!'

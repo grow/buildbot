@@ -12,3 +12,6 @@ RUN chmod +x /etc/service/worker2/run
 RUN chmod +x /etc/service/worker3/run
 RUN chmod +x /etc/service/worker4/run
 RUN chmod +x /etc/service/worker5/run
+
+# Add the application.
+ADD app/* /home/app/
