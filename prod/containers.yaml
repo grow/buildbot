@@ -1,0 +1,48 @@
+version: v1
+kind: Pod
+metadata:
+  name: buildbot
+spec:
+  restartPolicy: Always
+  DNSPolicy: Default
+  containers:
+    - name: buildbot-master
+      image: grow/buildbot-master
+      imagePullPolicy: Always
+      ports:
+        - name: master-http
+          containerPort: 8080
+          hostPort: 8080
+          protocol: TCP
+    - name: buildbot-worker
+      image: grow/buildbot-worker
+      imagePullPolicy: Always
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+          readOnly: false
+    - name: redis
+      image: redis
+      imagePullPolicy: Always
+      command:
+      - bash
+      - -c
+      - redis-server --appendonly yes
+      ports:
+        - name: redis
+          containerPort: 6379
+          hostPort: 6379
+          protocol: TCP
+      volumeMounts:
+        - name: redis-data
+          mountPath: /data
+          readOnly: false
+  volumes:
+    - name: redis-data
+      hostPath:
+        path: /data
+    - name: docker-sock
+      hostPath:
+        path: /var/run/docker.sock

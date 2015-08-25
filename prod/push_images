@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -x
+
+docker push grow/buildbot-master
+docker push grow/buildbot-worker

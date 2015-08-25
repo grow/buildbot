@@ -12,8 +12,14 @@ fi
 VERSION=$1
 
 docker build -f Dockerfile.baseimage -t grow/buildbot-baseimage:latest .
-docker build -f Dockerfile.master -t grow/buildbot-master:$VERSION .
-docker build -f Dockerfile.worker -t grow/buildbot-worker:$VERSION .
 
-# docker tag -f $IMAGE:$NOW $IMAGE:latest
+IMAGE=grow/buildbot-master
+docker build -f Dockerfile.master -t $IMAGE:$VERSION .
+docker tag -f $IMAGE:$VERSION $IMAGE:latest
+
+IMAGE=grow/buildbot-worker
+docker build -f Dockerfile.worker -t $IMAGE:$VERSION .
+docker tag -f $IMAGE:$VERSION $IMAGE:latest
+
 echo 'Built!'
+echo 'Run the ./prod/push_images script to push these images to Docker Hub.'

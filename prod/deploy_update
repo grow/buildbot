@@ -1,0 +1,16 @@
+#!/bin/bash
+
+VMNAME=buildbot-master
+
+# Make sure the current working dir is the same as the script.
+cd "$(dirname "$0")"
+CURDIR=$(pwd)
+
+echo 'Deploying updated metadata...'
+
+# Update instance metadata.
+gcloud compute instances add-metadata \
+  $VMNAME \
+  --zone us-central1-a \
+  --metadata-from-file \
+      google-container-manifest=$CURDIR/containers.yaml,startup-script=$CURDIR/master-startup.sh
