@@ -5,19 +5,18 @@ DISKNAME=buildbot-data
 
 echo "Deploying $VMNAME ..."
 
-set -e
-
 # Make sure the current working dir is the same as the script.
 cd "$(dirname "$0")"
 CURDIR=$(pwd)
 
 gcloud compute addresses create buildbot-master --region us-central1
-
 gcloud compute disks create \
   $DISKNAME \
   --type pd-ssd \
   --size 200GB \
   --zone us-central1-a
+
+set -e
 
 gcloud compute instances create \
   $VMNAME \
@@ -28,10 +27,13 @@ gcloud compute instances create \
   --address buildbot-master \
   --zone us-central1-a \
   --boot-disk-size 250GB \
+  --boot-disk-type pd-ssd \
+  --tags allow-http-8080 \
   --metadata-from-file \
       google-container-manifest=$CURDIR/containers.yaml,startup-script=$CURDIR/master-startup.sh
 
 echo 'Done!'
 echo
 echo 'WARNING: make sure that the disk is mounted the first time the instance is created.'
-echo 'SSH into the instance, run "mount -a" and look for /data. If not, reboot and check again.'
+echo 'SSH into the instance, run "sudo mount" and look for /data. If not, reboot and check again.'
+echo 'You may need to run the master-startup.sh commands once manually to properly set it up.'

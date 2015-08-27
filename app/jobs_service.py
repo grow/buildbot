@@ -4,7 +4,7 @@ import redis
 import subprocess
 import time
 
-MAX_RETAINED_BUILDS = 100
+MAX_RETAINED_BUILDS = 300
 
 redis_client = redis.StrictRedis(
     host=os.getenv('REDIS_HOST', 'localhost'),
@@ -134,8 +134,8 @@ def enqueue_build(job_id, ref, commit_sha):
   # Cleanup old builds that have exceeded MAX_RETAINED_BUILDS.
   builds_to_delete = redis_client.lrange('builds:recent', MAX_RETAINED_BUILDS, -1)
   redis_client.ltrim('builds:recent', 0, MAX_RETAINED_BUILDS)
-  for build_id in builds_to_delete:
-    redis_client.delete(*['build:%s:data' % build_id for build_id in builds_to_delete])
+  for delete_id in builds_to_delete:
+    redis_client.delete(*['build:%s:data' % delete_id for delete_id in builds_to_delete])
 
   return build_id
 
