@@ -12,7 +12,7 @@ app = flask.Flask(__name__)
 def get_buildbot_password_or_die():
   """Fetches the buildbot password either from GCP metadata or from an environment variable."""
   try:
-    url = 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/buildbot_password'
+    url = 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/buildbot-password'
     headers = {'Metadata-Flavor': 'Google'}
     request = urllib2.Request(url, headers=headers)
     response = urllib2.urlopen(request)

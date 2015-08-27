@@ -11,6 +11,8 @@ set -e
 cd "$(dirname "$0")"
 CURDIR=$(pwd)
 
+gcloud compute addresses create buildbot-master --region us-central1
+
 gcloud compute disks create \
   $DISKNAME \
   --type pd-ssd \
@@ -23,6 +25,7 @@ gcloud compute instances create \
   --machine-type n1-standard-8 \
   --scopes https://www.googleapis.com/auth/gerritcodereview,https://www.googleapis.com/auth/logging.write \
   --disk name=$DISKNAME,device-name=$DISKNAME,boot=no,auto-delete=no \
+  --address buildbot-master \
   --zone us-central1-a \
   --boot-disk-size 250GB \
   --metadata-from-file \
