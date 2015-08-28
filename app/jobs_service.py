@@ -33,9 +33,11 @@ class Build(object):
   pass
 
 
-def create_job(git_url):
+def create_job(git_url, remote, env):
   job_id = redis_client.incr('jobs:counter')
   redis_client.hset('job:%s:data' % job_id, 'git_url', git_url)
+  redis_client.hset('job:%s:data' % job_id, 'remote', remote)
+  redis_client.hset('job:%s:data' % job_id, 'env', json.dumps(env))
   redis_client.lpush('jobs:all', job_id)
   try:
     update_ref_map(job_id)
@@ -64,7 +66,9 @@ def get_job(job_id):
   job = Job()
   job.id = job_id
   job.git_url = redis_client.hget(job_data_key, 'git_url')
+  job.remote = redis_client.hget(job_data_key, 'remote')
   job.ref_map = json.loads(redis_client.hget(job_data_key, 'ref_map') or '{}')
+  job.env = json.loads(redis_client.hget(job_data_key, 'env') or '{}')
   return job
 
 
@@ -122,11 +126,13 @@ def enqueue_build(job_id, ref, commit_sha):
   build_id = redis_client.incr('build:counter')
   build_data_key = 'build:%s:data' % build_id
 
-  # Set all the build data into a build:123:data key which can be consumed later.
+  # Create build data from job data and arguments, store in a build:123:data key to be consumed.
   redis_client.hset(build_data_key, 'status', 'pending')
   redis_client.hset(build_data_key, 'git_url', job.git_url)
   redis_client.hset(build_data_key, 'ref', ref)
   redis_client.hset(build_data_key, 'commit_sha', commit_sha)
+  redis_client.hset(build_data_key, 'remote', job.remote)
+  redis_client.hset(build_data_key, 'env', json.dumps(job.env))
 
   # Push the build ID into builds:runnable so it can be consumed by a worker.
   redis_client.lpush('builds:runnable', build_id)
@@ -148,37 +154,43 @@ def pop_next_build():
 
 
 def run_build(build_id):
-  build = get_build(build_id)
-
-  build_data_key = 'build:%s:data' % build_id
-  redis_client.hset(build_data_key, 'status', 'running')
-
   success = True
   try:
+    build = get_build(build_id)
+
+    build_data_key = 'build:%s:data' % build_id
+    redis_client.hset(build_data_key, 'status', 'running')
+
+    # Make a list like ['-e', 'ENV_FOO=foo', '-e', 'ENV_BAR=bar'] for all the build's user env vars.
+    env_args = [('-e', '%s=%s' % (k, v)) for k, v in build.env.iteritems()]
+    flattened_env_args = [item for sublist in env_args for item in sublist]
+
     command = [
-        'docker',
-        'run',
-        '--rm',
-        '--workdir=/tmp',
-        '-i',
-        'grow/baseimage',
-        'bash',
-        '-c',
-        """
-        set -e
-        git clone %s growsite
-        cd growsite/
-        if [ -a "package.json" ]; then
-          npm install
-        fi
-        if [ -a "bower.json" ]; then
-          bower install --allow-root
-        fi
-        if [ -a "gulpfile.js" ]; then
-          gulp build
-        fi
-        grow build .
-        """ % build.git_url
+      'docker',
+      'run',
+      '--rm',
+      '--workdir=/tmp',
+    ] + flattened_env_args + [
+      '-i',
+      'grow/baseimage',
+      'bash',
+      '-c',
+      """
+      set -e
+      set -x
+      git clone %(git_url)s growsite
+      cd growsite/
+      if [ -a "package.json" ]; then
+        npm install
+      fi
+      if [ -a "bower.json" ]; then
+        bower install --allow-root
+      fi
+      if [ -a "gulpfile.js" ]; then
+        gulp build
+      fi
+      grow stage --remote=%(remote)s
+      """ % {'git_url': build.git_url, 'remote': build.remote}
     ]
     output = subprocess.check_output(command, stderr=subprocess.STDOUT)
     redis_client.hset(build_data_key, 'status', 'success')
@@ -222,5 +234,7 @@ def get_build(build_id):
   build.git_url = redis_client.hget(build_data_key, 'git_url')
   build.ref = redis_client.hget(build_data_key, 'ref')
   build.commit_sha = redis_client.hget(build_data_key, 'commit_sha')
+  build.remote = redis_client.hget(build_data_key, 'remote')
+  build.env = json.loads(redis_client.hget(build_data_key, 'env') or '{}')
   build.output = (redis_client.hget(build_data_key, 'output') or '').decode('utf-8')
   return build

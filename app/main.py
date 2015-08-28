@@ -79,9 +79,18 @@ def build(build_id):
 @app.route('/api/jobs', methods=['POST'])
 @auth_required
 def create_job():
-  git_url = request.args.get('git_url')
-  assert git_url
-  job_id = jobs_service.create_job(git_url=git_url)
+  # TODO: better JSON API parsing and error responses.
+  data = request.get_json()
+  assert data.get('git_url')
+  assert data.get('remote')
+  assert data.get('env')
+  assert data['env'].get('WEBREVIEW_API_KEY')
+
+  job_id = jobs_service.create_job(
+    git_url=data['git_url'],
+    remote=data['remote'],
+    env=data['env'],
+  )
   return flask.jsonify({'success': True, 'job_id': job_id})
 
 
