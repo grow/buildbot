@@ -20,7 +20,8 @@
   <h2>Jobs ({{ jobs|length }})</h2>
   {% for job in jobs %}
     <ul>
-      <li>Job {{ job.id }}: {{ job.git_url }} [<a href="{{ url_for('run_job', job_id=job.id) }}">sync now</a>]</li>
+      <li>
+        Job {{ job.id }}: {{ job.git_url }} (remote: {{ job.remote }}) [<a href="{{ url_for('run_job', job_id=job.id) }}">sync now</a>]</li>
       <ul>
         {% for ref in job.ref_map %}
           <li>[<a href="{{ url_for('run_job', job_id=job.id, ref=ref, commit_sha=job.ref_map[ref]['sha']) }}">build now</a>] {{ ref }} ({{ job.ref_map[ref]['sha'][0:7] }})</li>

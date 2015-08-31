@@ -196,7 +196,7 @@ def run_build(build_id):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
     with process.stdout:
       for line in iter(process.stdout.readline, b''):
-        output += line + "\n"
+        output += line.strip() + "\n"
         redis_client.hset(build_data_key, 'output', output)
     if process.wait() != 0:
       success = False

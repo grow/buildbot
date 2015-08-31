@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import time
+import os
 import signal
 import jobs_service
 
@@ -19,9 +20,11 @@ def main():
     print 'Build %s: %s' % (build.id, 'success' if result else 'failed')
 
 
-def sigint_handler(signal, frame):
-  print 'Shutting down...'
+def sigint_handler(_, frame):
+  print 'Shutting down (interrupt again to kill)...'
   global heard_interrupt
+  if heard_interrupt:
+    os.kill(os.getpid(), signal.SIGTERM)
   heard_interrupt = True
 signal.signal(signal.SIGINT, sigint_handler)
 
