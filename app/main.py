@@ -9,6 +9,7 @@ from functools import wraps
 
 app = flask.Flask(__name__)
 
+
 def get_buildbot_password_or_die():
   """Fetches the buildbot password either from GCP metadata or from an environment variable."""
   try:
@@ -87,9 +88,9 @@ def create_job():
   assert data['env'].get('WEBREVIEW_API_KEY')
 
   job_id = jobs_service.create_job(
-    git_url=data['git_url'],
-    remote=data['remote'],
-    env=data['env'],
+      git_url=data['git_url'],
+      remote=data['remote'],
+      env=data['env'],
   )
   return flask.jsonify({'success': True, 'job_id': job_id})
 

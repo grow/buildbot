@@ -1,15 +1,9 @@
 #!/bin/bash
 
-set -x
 set -e
 
-if [ -z "$1" ]
-  then
-    echo "Usage:"
-    echo "  ./deploy.sh VERSION"
-    exit -1
-fi
-VERSION=$1
+VERSION=`date +%Y-%m-%d-%H%M%S`
+echo "Building version $VERSION"
 
 docker build -f Dockerfile.baseimage -t grow/buildbot-baseimage:latest .
 
@@ -21,5 +15,6 @@ IMAGE=grow/buildbot-worker
 docker build -f Dockerfile.worker -t $IMAGE:$VERSION .
 docker tag -f $IMAGE:$VERSION $IMAGE:latest
 
-echo 'Built!'
-echo 'Run the ./prod/push_images script to push these images to Docker Hub.'
+echo
+echo "Built and tagged with '$VERSION' and 'latest'"
+echo "Run the ./prod/push_images script to push these images to Docker Hub."
