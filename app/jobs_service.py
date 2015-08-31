@@ -155,6 +155,7 @@ def pop_next_build():
 
 def run_build(build_id):
   success = True
+  output = ''
   try:
     build = get_build(build_id)
 
@@ -192,18 +193,23 @@ def run_build(build_id):
       grow stage --remote=%(remote)s
       """ % {'git_url': build.git_url, 'remote': build.remote}
     ]
-    output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-    redis_client.hset(build_data_key, 'status', 'success')
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+    with process.stdout:
+      for line in iter(process.stdout.readline, b''):
+        output += line + "\n"
+        redis_client.hset(build_data_key, 'output', output)
+    if process.wait() != 0:
+      success = False
   except subprocess.CalledProcessError, e:
     success = False
-    redis_client.hset(build_data_key, 'status', 'failed')
-    output = 'Build failed: %s' % e.output
+    output += '\nBuild failed:\n %s' % e.output
   except Exception, e:
-    redis_client.hset(build_data_key, 'status', 'failed')
-    output = 'Build failed: %r' % e
+    success = False
+    output += '\nBuild failed: %r' % e
     raise
   finally:
     # TODO: probably better to store the output outside redis because it is potentially large.
+    redis_client.hset(build_data_key, 'status', 'success' if success else 'failed')
     redis_client.hset(build_data_key, 'output', output)
   return success
 
