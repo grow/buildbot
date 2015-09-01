@@ -186,8 +186,13 @@ def run_build(build_id):
       'bash',
       '-c',
       """
+      # Set up gerrit auth when available in GCE environment.
+      git clone https://gerrit.googlesource.com/gcompute-tools
+      ./gcompute-tools/git-cookie-authdaemon
+
       set -e
       set -x
+
       git clone %(git_url)s growsite
       cd growsite/
       if [ -a "package.json" ]; then
