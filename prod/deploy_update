@@ -18,3 +18,9 @@ gcloud compute instances add-metadata \
   --zone us-central1-a \
   --metadata-from-file \
       google-container-manifest=$CURDIR/containers.yaml,startup-script=$CURDIR/master-startup.sh
+
+echo 'Restarting docker containers...'
+gcloud compute ssh \
+  $VMNAME
+  --zone us-central1-a \
+  --command "sudo docker stop -t 120 $(docker ps -a)"
