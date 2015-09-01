@@ -8,7 +8,7 @@ CURDIR=$(pwd)
 
 echo 'Updating docker images...'
 gcloud compute ssh \
-  $VMNAME
+  $VMNAME \
   --zone us-central1-a \
   --command "sudo docker pull grow/baseimage && sudo docker pull grow/buildbot-master && sudo docker pull grow/buildbot-worker"
 
@@ -21,6 +21,6 @@ gcloud compute instances add-metadata \
 
 echo 'Restarting docker containers...'
 gcloud compute ssh \
-  $VMNAME
+  $VMNAME \
   --zone us-central1-a \
   --command "sudo docker stop -t 120 $(docker ps -a)"
