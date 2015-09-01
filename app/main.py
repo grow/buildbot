@@ -95,23 +95,41 @@ def create_job():
   return flask.jsonify({'success': True, 'job_id': job_id})
 
 
+@app.route('/api/jobs/sync', methods=['GET', 'POST'])
+@auth_required
+def sync_jobs():
+  data = jobs_service.sync_all_jobs()
+  jobs_with_new_builds = [job_id for job_id in data if data[job_id]]
+  if jobs_with_new_builds:
+    message = 'Refs changed, enqueued builds from %s jobs.' % len(jobs_with_new_builds)
+  else:
+    message = 'No refs changed in any jobs, nothing to build.'
+  return flask.jsonify({'success': True, 'message': message})
+
+
+
+@app.route('/api/jobs/<int:job_id>/sync', methods=['GET', 'POST'])
+@auth_required
+def sync_job(job_id):
+  # Update refs and trigger all builds.
+  build_ids = jobs_service.sync_job(job_id)
+  if build_ids:
+    message = 'Refs changed, enqueued %s builds.' % len(build_ids)
+  else:
+    message = 'No refs changed, nothing to build.'
+  return flask.jsonify({'success': True, 'message': message})
+
+
 @app.route('/api/jobs/<int:job_id>/run', methods=['GET', 'POST'])
 @auth_required
 def run_job(job_id):
   ref = request.args.get('ref')
   commit_sha = request.args.get('commit_sha')
-  if ref and commit_sha:
-    # Trigger build of single ref and commit SHA.
-    build_id = jobs_service.enqueue_build(job_id, ref, commit_sha)
-    return flask.jsonify({'success': True, 'build_id': build_id, 'message': 'Build enqueued.'})
-  else:
-    # Update refs and trigger all builds.
-    build_ids = jobs_service.run_job(job_id)
-    if build_ids:
-      message = 'Refs changed, enqueued %s builds.' % len(build_ids)
-    else:
-      message = 'No refs changed, nothing to build.'
-    return flask.jsonify({'success': True, 'message': message})
+  assert ref
+  assert commit_sha
+  # Trigger build of single ref and commit SHA.
+  build_id = jobs_service.enqueue_build(job_id, ref, commit_sha)
+  return flask.jsonify({'success': True, 'build_id': build_id, 'message': 'Build enqueued.'})
 
 
 if __name__ == '__main__':

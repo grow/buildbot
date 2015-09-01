@@ -72,7 +72,7 @@ def get_job(job_id):
   return job
 
 
-def run_job(job_id):
+def sync_job(job_id):
   success = True
   diff_ref_map = update_ref_map(job_id)
   build_ids = []
@@ -81,6 +81,15 @@ def run_job(job_id):
       build_id = enqueue_build(job_id=job_id, ref=ref, commit_sha=diff_ref_map[ref]['sha'])
       build_ids.append(build_id)
   return build_ids
+
+
+def sync_all_jobs():
+  result = {}
+  jobs = list_jobs()
+  for job in jobs:
+    build_ids = sync_job(job.id)
+    result[job.id] = build_ids
+  return result
 
 
 def update_ref_map(job_id):

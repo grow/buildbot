@@ -6,9 +6,13 @@ VMNAME=buildbot-master
 cd "$(dirname "$0")"
 CURDIR=$(pwd)
 
-echo 'Deploying updated metadata...'
+echo 'Updating docker images...'
+gcloud compute ssh \
+  $VMNAME
+  --zone us-central1-a \
+  --command "sudo docker pull grow/baseimage && sudo docker pull grow/buildbot-master && sudo docker pull grow/buildbot-worker"
 
-# Update instance metadata.
+echo 'Deploying updated metadata...'
 gcloud compute instances add-metadata \
   $VMNAME \
   --zone us-central1-a \
