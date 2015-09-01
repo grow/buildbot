@@ -6,7 +6,7 @@ ADD prod/run-app.sh /etc/service/app/run
 RUN chmod +x /etc/service/app/run
 
 # Add a cron entry for the sync script.
-RUN (crontab -l; echo "* * * * * python /home/app/app/cron.py") | crontab
+RUN (crontab -l; echo "* * * * * /sbin/setuser app /home/app/cron.py 2>&1 | logger -p user.info") | crontab
 
 # Add the application.
 ADD app /home/app/
