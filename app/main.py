@@ -6,6 +6,7 @@ from flask import request
 from functools import wraps
 import flask
 import os
+import mimetypes
 import urllib2
 
 app = flask.Flask(__name__)
@@ -78,7 +79,25 @@ def build(build_id):
   return flask.render_template('build.html', build=build)
 
 
-@app.route('/api/contents', methods=['POST'])
+@app.route('/api/contents/download', methods=['POST'])
+@auth_required
+def download_contents():
+  data = request.get_json()
+  repo = contents_service.init_repo(
+      url=data['url'],
+      branch=data['branch'])
+  content = contents_service.download(
+      repo=repo,
+      branch=data['branch'],
+      path=data['path'])
+  resp = app.make_response(content)
+  mimetype = mimetypes.guess_type(data['path'])[0]
+  if mimetype:
+    resp.mimetype = mimetype
+  return resp
+
+
+@app.route('/api/contents/update', methods=['POST'])
 @auth_required
 def update_contents():
   data = request.get_json()

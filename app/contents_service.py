@@ -49,3 +49,12 @@ def update(repo, branch, path, content, sha, message=None, committer=None,
   origin.push()
   repo.git.log()
   return repo.remotes.origin.url
+
+
+def download(repo, branch, path):
+  origin = repo.remotes.origin
+  origin.pull()
+  repo.create_head(branch, origin.refs[branch]).set_tracking_branch(origin.refs[branch])
+  path = os.path.join(repo.working_tree_dir, path)
+  content = open(path).read()
+  return content
