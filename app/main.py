@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-import flask
-import urllib2
+import contents_service
 import jobs_service
-import os
 from flask import request
 from functools import wraps
+import flask
+import os
+import urllib2
 
 app = flask.Flask(__name__)
 
@@ -75,6 +76,25 @@ def jobs():
 def build(build_id):
   build = jobs_service.get_build(build_id)
   return flask.render_template('build.html', build=build)
+
+
+@app.route('/api/contents', methods=['POST'])
+@auth_required
+def update_contents():
+  data = request.get_json()
+  repo = contents_service.init_repo(
+      url=data['url'],
+      branch=data['branch'])
+  resp = contents_service.update(
+      repo=repo,
+      branch=data['branch'],
+      path=data['path'],
+      content=data['content'],
+      sha=data['sha'],
+      message=data['message'],
+      committer=data['committer'],
+      author=data['author'])
+  return flask.jsonify({'success': True, 'resp': resp})
 
 
 @app.route('/api/jobs', methods=['POST'])
