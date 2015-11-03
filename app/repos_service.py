@@ -11,10 +11,14 @@ def get_work_dir(job_id):
   return get_workspace_root() + str(job_id)
 
 
+def get_repo(job_id):
+  git.Repo(get_work_dir(job_id))
+
+
 def clone_repo(job_id, url, branch):
   work_dir = get_work_dir(job_id)
   if not os.path.exists(work_dir):
-    repo = git.Repo.clone_from(url, work_dir)
+    repo = git.Repo.clone_from(url, work_dir, depth=50)
   else:
     repo = git.Repo(work_dir)
   try:
@@ -29,11 +33,11 @@ def init_repo(job_id, url, branch):
   repo = clone_repo(job_id, url, branch)
   origin = repo.remotes.origin
   origin.fetch()
+  origin.pull()
   return repo
 
 
-def update(repo, branch, path, content, sha, message=None, committer=None,
-           author=None):
+def update(repo, branch, path, content, sha, message=None, committer=None, author=None):
   # TODO: Verify workspace file sha against one provided by user.
   origin = repo.remotes.origin
   origin.pull()
@@ -50,12 +54,3 @@ def update(repo, branch, path, content, sha, message=None, committer=None,
   origin.push()
   repo.git.log()
   return repo.remotes.origin.url
-
-
-def download(repo, branch, path):
-  origin = repo.remotes.origin
-  origin.pull()
-  repo.create_head(branch, origin.refs[branch]).set_tracking_branch(origin.refs[branch])
-  path = os.path.join(repo.working_tree_dir, path)
-  content = open(path).read()
-  return content

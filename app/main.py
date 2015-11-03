@@ -21,10 +21,11 @@ class RestfulGitConfig(object):
 
 app = flask.Flask(__name__)
 app.debug = True
+restfulgit_app = restfulgit_app_factory.create_app(RestfulGitConfig)
 full_app = DispatcherMiddleware(
   app,
   {
-    '/api/git': restfulgit_app_factory.create_app(RestfulGitConfig),
+    '/api/git': restfulgit_app,
   },
 )
 
@@ -92,8 +93,8 @@ def jobs():
 @app.route('/job/<int:job_id>/browse/<path:ref>')
 @auth_required
 def job_browse_ref(job_id, ref):
+  raise NotImplementedError
   job = jobs_service.get_job(job_id)
-  data = ''
   return flask.render_template('browse_ref.html', job=job, ref=ref)
 
 
@@ -104,23 +105,21 @@ def build(build_id):
   return flask.render_template('build.html', build=build)
 
 
-# @app.route('/api/contents/update', methods=['POST'])
-# @auth_required
-# def update_contents():
-#   data = request.get_json()
-#   repo = repos_service.init_repo(
-#       url=data['url'],
-#       branch=data['branch'])
-#   resp = repos_service.update(
-#       repo=repo,
-#       branch=data['branch'],
-#       path=data['path'],
-#       content=data['content'],
-#       sha=data['sha'],
-#       message=data['message'],
-#       committer=data['committer'],
-#       author=data['author'])
-#   return flask.jsonify({'success': True, 'resp': resp})
+@app.route('/api/jobs/<int:job_id>/contents/update', methods=['POST'])
+@auth_required
+def update_contents(job_id):
+  data = request.get_json()
+  repo = repos_service.get_repo(job_id)
+  resp = repos_service.update(
+      repo=repo,
+      branch=data['branch'],
+      path=data['path'],
+      content=data['content'],
+      sha=data['sha'],
+      message=data['message'],
+      committer=data['committer'],
+      author=data['author'])
+  return flask.jsonify({'success': True, 'resp': resp})
 
 
 @app.route('/api/jobs', methods=['POST'])
