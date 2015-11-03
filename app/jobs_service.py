@@ -84,7 +84,7 @@ def sync_job(job_id):
       build_ids.append(build_id)
 
   # Whenever a job is synced, also clone the local copy of the repo for use in the git service.
-  repos_service.init_repo(url=job.git_url, branch='master')
+  repos_service.init_repo(job_id=job_id, url=job.git_url, branch='master')
 
   return build_ids
 

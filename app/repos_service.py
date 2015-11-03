@@ -6,15 +6,13 @@ import os
 def get_workspace_root():
   return '/tmp/grow/workspaces/'
 
-def get_work_dir(url):
-  m = md5.new()
-  m.update(url)
-  ident = m.hexdigest()
-  return get_workspace_root() + ident
+
+def get_work_dir(job_id):
+  return get_workspace_root() + str(job_id)
 
 
-def clone_repo(url, branch):
-  work_dir = get_work_dir(url)
+def clone_repo(job_id, url, branch):
+  work_dir = get_work_dir(job_id)
   if not os.path.exists(work_dir):
     repo = git.Repo.clone_from(url, work_dir)
   else:
@@ -27,8 +25,8 @@ def clone_repo(url, branch):
   return repo
 
 
-def init_repo(url, branch):
-  repo = clone_repo(url, branch)
+def init_repo(job_id, url, branch):
+  repo = clone_repo(job_id, url, branch)
   origin = repo.remotes.origin
   origin.fetch()
   return repo

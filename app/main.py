@@ -20,6 +20,7 @@ class RestfulGitConfig(object):
 
 
 app = flask.Flask(__name__)
+app.debug = True
 full_app = DispatcherMiddleware(
   app,
   {
@@ -88,17 +89,11 @@ def jobs():
   return flask.render_template('jobs.html', jobs=jobs)
 
 
-@app.route('/job/<int:job_id>/browse')
-@auth_required
-def job_browse(job_id):
-  job = jobs_service.get_job(job_id)
-  return flask.render_template('browse.html', job=job)
-
-
 @app.route('/job/<int:job_id>/browse/<path:ref>')
 @auth_required
 def job_browse_ref(job_id, ref):
   job = jobs_service.get_job(job_id)
+  data = ''
   return flask.render_template('browse_ref.html', job=job, ref=ref)
 
 
@@ -107,44 +102,6 @@ def job_browse_ref(job_id, ref):
 def build(build_id):
   build = jobs_service.get_build(build_id)
   return flask.render_template('build.html', build=build)
-
-
-@app.route('/api/jobs/<int:job_id>/contents/<path:path>')
-@auth_required
-def contents(path):
-  ref = request.args.get('ref')
-  assert ref
-  data = request.get_json()
-  repo = repos_service.init_repo(
-      url=data['url'],
-      branch=data['branch'])
-  content = repos_service.download(
-      repo=repo,
-      branch=data['branch'],
-      path=data['path'])
-  resp = app.make_response(content)
-  mimetype = mimetypes.guess_type(data['path'])[0]
-  if mimetype:
-    resp.mimetype = mimetype
-  return resp
-
-
-# @app.route('/api/contents/download', methods=['POST'])
-# @auth_required
-# def download_contents():
-#   data = request.get_json()
-#   repo = repos_service.init_repo(
-#       url=data['url'],
-#       branch=data['branch'])
-#   content = repos_service.download(
-#       repo=repo,
-#       branch=data['branch'],
-#       path=data['path'])
-#   resp = app.make_response(content)
-#   mimetype = mimetypes.guess_type(data['path'])[0]
-#   if mimetype:
-#     resp.mimetype = mimetype
-#   return resp
 
 
 # @app.route('/api/contents/update', methods=['POST'])
