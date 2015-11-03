@@ -3,6 +3,8 @@ import os
 import redis
 import subprocess
 import time
+import repos_service
+
 
 MAX_RETAINED_BUILDS = 300
 
@@ -73,13 +75,17 @@ def get_job(job_id):
 
 
 def sync_job(job_id):
-  success = True
+  job = get_job(job_id)
   diff_ref_map = update_ref_map(job_id)
   build_ids = []
   if diff_ref_map:
     for ref in diff_ref_map:
       build_id = enqueue_build(job_id=job_id, ref=ref, commit_sha=diff_ref_map[ref]['sha'])
       build_ids.append(build_id)
+
+  # Whenever a job is synced, also clone the local copy of the repo for use in the git service.
+  repos_service.init_repo(url=job.git_url, branch='master')
+
   return build_ids
 
 

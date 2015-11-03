@@ -3,11 +3,14 @@ import md5
 import os
 
 
+def get_workspace_root():
+  return '/tmp/grow/workspaces/'
+
 def get_work_dir(url):
   m = md5.new()
   m.update(url)
   ident = m.hexdigest()
-  return '/tmp/workspaces/{}'.format(ident)
+  return get_workspace_root() + ident
 
 
 def clone_repo(url, branch):

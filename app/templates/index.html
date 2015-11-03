@@ -27,7 +27,11 @@
       </li>
       <ul>
         {% for ref in job.ref_map %}
-          <li>[<a href="{{ url_for('run_job', job_id=job.id, ref=ref, commit_sha=job.ref_map[ref]['sha']) }}">build now</a>] {{ ref }} ({{ job.ref_map[ref]['sha'][0:7] }})</li>
+          <li>
+            [<a href="{{ url_for('run_job', job_id=job.id, ref=ref, commit_sha=job.ref_map[ref]['sha']) }}">build now</a>]
+            [<a href="{{ url_for('job_browse_ref', job_id=job.id, ref=ref) }}">browse</a>]
+            {{ ref }} ({{ job.ref_map[ref]['sha'][0:7] }})
+          </li>
         {% endfor %}
       </ul>
     </ul>
