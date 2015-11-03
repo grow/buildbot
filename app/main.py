@@ -14,14 +14,16 @@ import jobs_service
 from restfulgit import app_factory as restfulgit_app_factory
 
 
+# Mount RestfulGit at /api/git so the temporary directories can be browsed.
 class RestfulGitConfig(object):
   RESTFULGIT_REPO_BASE_PATH = repos_service.get_workspace_root()
+
 
 app = flask.Flask(__name__)
 full_app = DispatcherMiddleware(
   app,
   {
-    '/restfulgit': restfulgit_app_factory.create_app(RestfulGitConfig),
+    '/api/git': restfulgit_app_factory.create_app(RestfulGitConfig),
   },
 )
 
