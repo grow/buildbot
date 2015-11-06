@@ -11,8 +11,8 @@ spec:
       imagePullPolicy: Always
       ports:
         - name: master-http
-          containerPort: 8080
-          hostPort: 8080
+          containerPort: 8443
+          hostPort: 443
           protocol: TCP
     - name: buildbot-worker
       image: grow/buildbot-worker

@@ -44,6 +44,14 @@ RUN apt-get install -y lxc-docker-1.6.2
 # Let the "app" user run docker commands.
 RUN usermod -aG docker app
 
+# Configure nginx to serve the app.
+RUN apt-get install -y --no-install-recommends nginx
+RUN rm /etc/nginx/sites-enabled/default
+ADD prod/nginx-site.conf /etc/nginx/sites-enabled/nginx-site.conf
+# Configure nginx to run automatically.
+ADD prod/run-nginx.sh /etc/service/nginx/run
+RUN chmod +x /etc/service/nginx/run
+
 # Install app requirements.
 ADD app/requirements.txt /home/app/requirements.txt
 RUN pip install --upgrade cffi
