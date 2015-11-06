@@ -28,7 +28,7 @@ gcloud compute instances create \
   --zone us-central1-a \
   --boot-disk-size 250GB \
   --boot-disk-type pd-ssd \
-  --tags allow-http-8080 \
+  --tags allow-https \
   --metadata-from-file \
       google-container-manifest=$CURDIR/containers.yaml,startup-script=$CURDIR/master-startup.sh
 
