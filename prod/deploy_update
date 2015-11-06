@@ -23,4 +23,4 @@ echo 'Restarting docker containers...'
 gcloud compute ssh \
   $VMNAME \
   --zone us-central1-a \
-  --command "docker stop -t 120 $(docker ps -q)"
+  --command "docker stop -t 120 \$(docker ps -q)"
