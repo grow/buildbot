@@ -140,6 +140,17 @@ def create_job():
   return flask.jsonify({'success': True, 'job_id': job_id})
 
 
+@app.route('/api/jobs/<int:job_id>', methods=['DELETE'])
+@auth_required
+def delete_job(job_id):
+  # TODO: better JSON API parsing and error responses.
+  data = request.get_json()
+  assert data.get('job_id')
+
+  job_id = jobs_service.delete_job(job_id)
+  return flask.jsonify({'success': True})
+
+
 @app.route('/api/jobs/sync', methods=['GET', 'POST'])
 @auth_required
 def sync_jobs():

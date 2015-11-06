@@ -89,6 +89,13 @@ def sync_job(job_id):
   return build_ids
 
 
+def delete_job(job_id):
+  job = get_job(job_id)
+  job_data_key = 'job:%s:data' % job.id
+  redis_client.delete(job_data_key)
+  return True
+
+
 def sync_all_jobs():
   result = {}
   jobs = list_jobs()

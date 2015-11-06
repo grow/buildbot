@@ -7,6 +7,8 @@ NOTE: this app is under development.
 ## Running locally
 
 ```bash
+brew install libgit2
+
 ./utils/setup
 ./utils/run
 ./utils/run_worker
