@@ -26,8 +26,13 @@ ENV TERM=xterm
 RUN apt-get install -y --no-install-recommends git curl htop
 RUN apt-get install -y --no-install-recommends \
   python python-pip python-twisted python-virtualenv build-essential python-all-dev zip \
-  libc6 libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev libgit2-dev
+  libc6 libyaml-dev libffi-dev libxml2-dev libxslt-dev libssl-dev libgit2-dev wget cmake make
 RUN pip install --upgrade pip
+RUN cd /usr/local && \
+  wget https://github.com/libgit2/libgit2/archive/v0.23.2.tar.gz && \
+  tar xzf v0.23.2.tar.gz && \
+  cd libgit2-0.23.2/ && \
+  cmake . && make && make install
 
 # Install docker inside docker. This requires that this container is run in --privileged mode.
 # Also, we must install the exact same version of Docker as present on GCE's container-vms image. :|

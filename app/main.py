@@ -19,11 +19,12 @@ class RestfulGitConfig(object):
   RESTFULGIT_REPO_BASE_PATH = repos_service.get_workspace_root()
 
 
-app = flask.Flask(__name__)
-app.debug = True
+main_app = flask.Flask(__name__)
+main_app.debug = True
 restfulgit_app = restfulgit_app_factory.create_app(RestfulGitConfig)
-full_app = DispatcherMiddleware(
-  app,
+
+app = DispatcherMiddleware(
+  main_app,
   {
     '/api/git': restfulgit_app,
   },
@@ -61,14 +62,14 @@ def auth_required(f):
   return decorated
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
+@main_app.route('/', defaults={'path': ''})
+@main_app.route('/<path:path>')
 @auth_required
 def catch_all(path):
   return '404', 404
 
 
-@app.route('/')
+@main_app.route('/')
 @auth_required
 def index():
   jobs = jobs_service.list_jobs()
@@ -76,21 +77,21 @@ def index():
   return flask.render_template('index.html', builds=builds, jobs=jobs)
 
 
-@app.route('/builds')
+@main_app.route('/builds')
 @auth_required
 def builds():
   builds = jobs_service.list_builds()
   return flask.render_template('builds.html', builds=builds)
 
 
-@app.route('/jobs')
+@main_app.route('/jobs')
 @auth_required
 def jobs():
   jobs = jobs_service.list_jobs()
   return flask.render_template('jobs.html', jobs=jobs)
 
 
-@app.route('/job/<int:job_id>/browse/<path:ref>')
+@main_app.route('/job/<int:job_id>/browse/<path:ref>')
 @auth_required
 def job_browse_ref(job_id, ref):
   raise NotImplementedError
@@ -98,14 +99,14 @@ def job_browse_ref(job_id, ref):
   return flask.render_template('browse_ref.html', job=job, ref=ref)
 
 
-@app.route('/builds/<int:build_id>')
+@main_app.route('/builds/<int:build_id>')
 @auth_required
 def build(build_id):
   build = jobs_service.get_build(build_id)
   return flask.render_template('build.html', build=build)
 
 
-@app.route('/api/jobs/<int:job_id>/contents/update', methods=['POST'])
+@main_app.route('/api/jobs/<int:job_id>/contents/update', methods=['POST'])
 @auth_required
 def update_contents(job_id):
   data = request.get_json()
@@ -122,7 +123,7 @@ def update_contents(job_id):
   return flask.jsonify({'success': True, 'resp': resp})
 
 
-@app.route('/api/jobs', methods=['POST'])
+@main_app.route('/api/jobs', methods=['POST'])
 @auth_required
 def create_job():
   # TODO: better JSON API parsing and error responses.
@@ -140,14 +141,14 @@ def create_job():
   return flask.jsonify({'success': True, 'job_id': job_id})
 
 
-@app.route('/api/jobs/<int:job_id>', methods=['DELETE'])
+@main_app.route('/api/jobs/<int:job_id>', methods=['DELETE'])
 @auth_required
 def delete_job(job_id):
   job_id = jobs_service.delete_job(job_id)
   return flask.jsonify({'success': True})
 
 
-@app.route('/api/jobs/sync', methods=['GET', 'POST'])
+@main_app.route('/api/jobs/sync', methods=['GET', 'POST'])
 @auth_required
 def sync_jobs():
   data = jobs_service.sync_all_jobs()
@@ -159,14 +160,14 @@ def sync_jobs():
   return flask.jsonify({'success': True, 'message': message})
 
 
-@app.route('/api/jobs/sync_forks', methods=['GET', 'POST'])
+@main_app.route('/api/jobs/sync_forks', methods=['GET', 'POST'])
 @auth_required
 def sync_forks():
   job_ids_synced = jobs_service.sync_all_forks()
   return flask.jsonify({'success': True, 'message': 'Synced %s forks.' % len(job_ids_synced)})
 
 
-@app.route('/api/jobs/<int:job_id>/sync', methods=['GET', 'POST'])
+@main_app.route('/api/jobs/<int:job_id>/sync', methods=['GET', 'POST'])
 @auth_required
 def sync_job(job_id):
   # Update refs and trigger all builds.
@@ -178,14 +179,14 @@ def sync_job(job_id):
   return flask.jsonify({'success': True, 'message': message})
 
 
-@app.route('/api/jobs/<int:job_id>/sync_fork', methods=['GET', 'POST'])
+@main_app.route('/api/jobs/<int:job_id>/sync_fork', methods=['GET', 'POST'])
 @auth_required
 def sync_fork(job_id):
   build_ids = jobs_service.sync_fork(job_id)
   return flask.jsonify({'success': True})
 
 
-@app.route('/api/jobs/<int:job_id>/run', methods=['GET', 'POST'])
+@main_app.route('/api/jobs/<int:job_id>/run', methods=['GET', 'POST'])
 @auth_required
 def run_job(job_id):
   ref = request.args.get('ref')
@@ -198,4 +199,4 @@ def run_job(job_id):
 
 
 if __name__ == '__main__':
-  run_simple('localhost', 5000, full_app, use_reloader=True, use_debugger=True)
+  run_simple('localhost', 5000, app, use_reloader=True, use_debugger=True)
