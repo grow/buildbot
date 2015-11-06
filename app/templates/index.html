@@ -24,6 +24,7 @@
         Job {{ job.id }}:
         {{ job.git_url }} (remote: {{ job.remote }})
         [<a href="{{ url_for('sync_job', job_id=job.id) }}">sync now</a>]
+        [<a href="{{ url_for('sync_fork', job_id=job.id) }}">sync fork</a>]
       </li>
       <ul>
         {% for ref in job.ref_map %}

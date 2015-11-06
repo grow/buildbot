@@ -4,11 +4,15 @@ import os
 
 
 def get_workspace_root():
-  return '/tmp/grow/workspaces/'
+  if not os.path.isdir('/data'):
+    # Handle non-docker environments. :|
+    return '/tmp/grow/workspaces/'
+  return '/data/grow/workspaces/'
 
 
 def get_work_dir(job_id):
-  return get_workspace_root() + str(job_id)
+  workdir = get_workspace_root() + str(job_id)
+  return workdir
 
 
 def get_repo(job_id):

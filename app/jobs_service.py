@@ -82,11 +82,15 @@ def sync_job(job_id):
     for ref in diff_ref_map:
       build_id = enqueue_build(job_id=job_id, ref=ref, commit_sha=diff_ref_map[ref]['sha'])
       build_ids.append(build_id)
-
-  # Whenever a job is synced, also clone the local copy of the repo for use in the git service.
-  repos_service.init_repo(job_id=job_id, url=job.git_url, branch='master')
-
   return build_ids
+
+
+# The "fork" is the local tmpdir copy of the repo used for reading and writing (not building).
+# TODO: this should be abstracted out of the job service and probably out of buildbot.
+def sync_fork(job_id):
+  job = get_job(job_id)
+  repos_service.init_repo(job_id=job_id, url=job.git_url, branch='master')
+  return True
 
 
 def delete_job(job_id):

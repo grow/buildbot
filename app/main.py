@@ -159,7 +159,6 @@ def sync_jobs():
   return flask.jsonify({'success': True, 'message': message})
 
 
-
 @app.route('/api/jobs/<int:job_id>/sync', methods=['GET', 'POST'])
 @auth_required
 def sync_job(job_id):
@@ -170,6 +169,13 @@ def sync_job(job_id):
   else:
     message = 'No refs changed, nothing to build.'
   return flask.jsonify({'success': True, 'message': message})
+
+
+@app.route('/api/jobs/<int:job_id>/sync_fork', methods=['GET', 'POST'])
+@auth_required
+def sync_fork(job_id):
+  build_ids = jobs_service.sync_fork(job_id)
+  return flask.jsonify({'success': True})
 
 
 @app.route('/api/jobs/<int:job_id>/run', methods=['GET', 'POST'])
