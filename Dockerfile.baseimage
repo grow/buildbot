@@ -41,6 +41,7 @@ RUN usermod -aG docker app
 
 # Install app requirements.
 ADD app/requirements.txt /home/app/requirements.txt
+RUN pip install --no-deps git+git://github.com/hulu/restfulgit.git
 RUN pip install -r /home/app/requirements.txt
 
 # Clean up APT when done.
