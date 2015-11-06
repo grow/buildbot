@@ -17,13 +17,17 @@
     <li><a href="{{ url_for('builds')}}">More &raquo;</a></li>
   </ul>
 
-  <h2>Jobs ({{ jobs|length }}) [<a href="{{ url_for('sync_jobs') }}">sync all</a>]</h2>
+  <h2>
+    Jobs ({{ jobs|length }})
+    [<a href="{{ url_for('sync_jobs') }}">sync jobs</a>]
+    [<a href="{{ url_for('sync_forks') }}">sync forks</a>]
+  </h2>
   {% for job in jobs %}
     <ul>
       <li>
         Job {{ job.id }}:
         {{ job.git_url }} (remote: {{ job.remote }})
-        [<a href="{{ url_for('sync_job', job_id=job.id) }}">sync now</a>]
+        [<a href="{{ url_for('sync_job', job_id=job.id) }}">sync job</a>]
         [<a href="{{ url_for('sync_fork', job_id=job.id) }}">sync fork</a>]
       </li>
       <ul>

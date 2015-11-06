@@ -90,7 +90,7 @@ def sync_job(job_id):
 def sync_fork(job_id):
   job = get_job(job_id)
   repos_service.init_repo(job_id=job_id, url=job.git_url, branch='master')
-  return True
+  return job_id
 
 
 def delete_job(job_id):
@@ -106,6 +106,19 @@ def sync_all_jobs():
   for job in jobs:
     build_ids = sync_job(job.id)
     result[job.id] = build_ids
+  return result
+
+
+def sync_all_forks():
+  result = []
+  jobs = list_jobs()
+  for job in jobs:
+    try:
+      job_id = sync_fork(job.id)
+      result.append(job_id)
+    except:
+      # Silence all git syncing errors. :|
+      pass
   return result
 
 

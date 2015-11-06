@@ -11,8 +11,7 @@ def get_workspace_root():
 
 
 def get_work_dir(job_id):
-  workdir = get_workspace_root() + str(job_id)
-  return workdir
+  return get_workspace_root() + str(job_id)
 
 
 def get_repo(job_id):

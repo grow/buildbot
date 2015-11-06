@@ -7,6 +7,7 @@ RUN chmod +x /etc/service/app/run
 
 # Add a cron entry for the sync script.
 RUN (crontab -l; echo "* * * * * cd /home/app && /sbin/setuser app /home/app/cron.py 2>&1 | logger -p user.info") | crontab
+RUN (crontab -l; echo "* * * * * cd /home/app && /sbin/setuser app /home/app/cron_forks.py 2>&1 | logger -p user.info") | crontab
 
 # Add the application.
 ADD app /home/app/

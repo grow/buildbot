@@ -159,6 +159,13 @@ def sync_jobs():
   return flask.jsonify({'success': True, 'message': message})
 
 
+@app.route('/api/jobs/sync_forks', methods=['GET', 'POST'])
+@auth_required
+def sync_forks():
+  job_ids_synced = jobs_service.sync_all_forks()
+  return flask.jsonify({'success': True, 'message': 'Synced %s forks.' % len(job_ids_synced)})
+
+
 @app.route('/api/jobs/<int:job_id>/sync', methods=['GET', 'POST'])
 @auth_required
 def sync_job(job_id):
