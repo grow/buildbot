@@ -44,7 +44,8 @@ containers.yaml and set the `REDIS_HOST`, `REDIS_PORT`, and/or `REDIS_DB` enviro
 and to remove the redis container.
 
 Right now, you must manually SSH into the machine and modify `/etc/default/kubelet` to add the
-`--allow_privileged=true` flag.
+`--allow_privileged=true` flag. Also, you must manually copy a server.key and server.crt to the
+`/data/secrets` permanent directory so that nginx can serve with SSL.
 
 Finally, currently this app uses HTTP Basic Auth, so you must set a GCE instance metadata key
 called `buildbot-password` or customize containers.yaml and set the `BUILDBOT_PASSWORD` env var.
