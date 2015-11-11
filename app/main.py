@@ -111,16 +111,19 @@ def build(build_id):
 def update_contents(job_id):
   data = request.get_json()
   repo = repos_service.get_repo(job_id)
-  resp = repos_service.update(
-      repo=repo,
-      branch=data['branch'],
-      path=data['path'],
-      content=data['content'],
-      sha=data['sha'],
-      message=data['message'],
-      committer=data['committer'],
-      author=data['author'])
-  return flask.jsonify({'success': True, 'resp': resp})
+  try:
+    resp = repos_service.update(
+        repo=repo,
+        branch=data['branch'],
+        path=data['path'],
+        content=data['content'],
+        sha=data['sha'],
+        message=data['message'],
+        committer=data['committer'],
+        author=data['author'])
+    return flask.jsonify({'success': True, 'resp': resp})
+  except repos_service.Error as e:
+    return flask.jsonify({'success': False, 'error': str(e)})
 
 
 @main_app.route('/api/jobs', methods=['POST'])

@@ -3,6 +3,18 @@ import md5
 import os
 
 
+class Error(Exception):
+  pass
+
+
+class ConflictError(Error):
+  pass
+
+
+class IntegrationError(Error):
+  pass
+
+
 def get_workspace_root():
   if not os.path.isdir('/data'):
     # Handle non-docker environments. :|
@@ -15,7 +27,11 @@ def get_work_dir(job_id):
 
 
 def get_repo(job_id):
-  git.Repo(get_work_dir(job_id))
+  path = get_work_dir(job_id)
+  repo = git.Repo(path)
+  if repo is None:
+    raise Error('Repo in {} not found'.format(path))
+  return repo
 
 
 def clone_repo(job_id, url, branch):
@@ -42,18 +58,27 @@ def init_repo(job_id, url, branch):
 
 def update(repo, branch, path, content, sha, message=None, committer=None, author=None):
   # TODO: Verify workspace file sha against one provided by user.
+  local_branch = 'tmp'
   origin = repo.remotes.origin
   origin.pull()
-  repo.create_head(branch, origin.refs[branch]).set_tracking_branch(origin.refs[branch])
+  try:
+    repo.create_head(
+        local_branch, origin.refs[branch]).set_tracking_branch(origin.refs[branch])
+  except OSError as e:
+    if 'does already exist, pointing to' in str(e):
+      raise ConflictError(e)
+  path = path.lstrip('/')
   path = os.path.join(repo.working_tree_dir, path)
   if not os.path.exists(os.path.dirname(path)):
     os.makedirs(os.path.dirname(path))
   with open(path, 'w') as f:
-    f.write(content)
+    f.write(content.encode('utf-8'))
   repo.index.add([path])
   author = git.Actor(author['name'], author['email']) if author else None
   committer = git.Actor(committer['name'], committer['email']) if committer else None
   repo.index.commit(message, author=author, committer=committer)
-  origin.push()
-  repo.git.log()
+  push_info = origin.push()
+  repo.delete_head(local_branch)
+  if 'rejected' in push_info[0].summary:
+    raise IntegrationError(push_info[0].summary)
   return repo.remotes.origin.url
