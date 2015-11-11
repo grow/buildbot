@@ -30,6 +30,14 @@ class GitFailure(Error):
 class Job(object):
   pass
 
+  def serialize(self):
+    return {
+        'id': self.id,
+        'git_url': self.git_url,
+        'remote': self.remote,
+        'ref_map': self.ref_map,
+    }
+
 
 class Build(object):
   pass

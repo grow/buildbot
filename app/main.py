@@ -144,6 +144,13 @@ def create_job():
   return flask.jsonify({'success': True, 'job_id': job_id})
 
 
+@main_app.route('/api/jobs/<int:job_id>', methods=['GET'])
+@auth_required
+def get_job(job_id):
+  job = jobs_service.get_job(job_id)
+  return flask.jsonify({'success': True, 'job': job.serialize()})
+
+
 @main_app.route('/api/jobs/<int:job_id>', methods=['DELETE'])
 @auth_required
 def delete_job(job_id):
